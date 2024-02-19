@@ -19,47 +19,57 @@ LOCATION 's3://ti-p-data/customer-billing';
 
 # https://medium.com/@life-is-short-so-enjoy-it/aws-athena-create-table-file-format-compression-5a90233bdbbf
 
-DROP TABLE `athena_csv`;
 
-## Create Athena table using csv files
+
+## Athena CSV files
+* **File Data Schema Structure**
+```
+order_id,store_id,order_date,customer_id,name,email,product_id,quantity
+```
+
 ### Creating a table
 * To create tables in Athena we will need a bucket with permissions to the user creating the table
 * **Bucket Name** `ti-p-athena`
-* **Folder Name** ``
-* **File Format** ``
-* **File Data Schema Structure**
-```
-```
+* **Folder Name** `customer-billing/csv/`
+* **File Format** `CSV`
 * **Create Table**
 ```sql
-create external table tinitiate_athena.athena_csv (
-    order_id int,
-    store_id int,
-    order_date string,
-    items array<struct<product_id: int, product_name: string, quantity: int, price: double>>,
-    customer struct<customer_id: int, name: string, email: string>
+CREATE EXTERNAL TABLE tinitiate_athena.athena_csv (
+   order_id     INT,
+   store_id     INT,
+   order_date   STRING,
+   customer_id  INT,
+   name         STRING,
+   email        STRING,
+   product_id   INT,
+   quantity     INT
 )
-row format serde 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
-with serdeproperties (
-    'serialization.format' = ',',
-    'field.delim' = ','
-)
-location 's3://ti-p-data/customer-billing/csv/'
-tblproperties ('skip.header.line.count'='1');
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+LOCATION 's3://ti-p-data/customer-billing/csv/'
+TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 
-### Adding data to the athena table folder
-
-## Create Athena table using csv zip files
+### Create Athena table using csv zip files
 * To create tables in Athena we will need a bucket with permissions to the user creating the table
 * **Bucket Name** `ti-p-athena`
-* **Folder Name** ``
-* **File Format** ``
-* **Data Schema Structure**
-```
-```
+* **Folder Name** `customer-billing/csv-gz/`
+* **File Format** `CSV`
 * **Create Table**
 ```sql
+CREATE EXTERNAL TABLE tinitiate_athena.athena_csv_gz (
+   order_id     INT,
+   store_id     INT,
+   order_date   STRING,
+   customer_id  INT,
+   name         STRING,
+   email        STRING,
+   product_id   INT,
+   quantity     INT
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES ( 'serialization.format' = ',', 'field.delim' = ',')
+LOCATION 's3://ti-p-data/customer-billing/csv/'
+TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 
 
@@ -176,4 +186,25 @@ create external table tinitiate_athena.athena_parquet (
 )
 ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
 LOCATION 's3://ti-p-data/customer-billing/parquet';
+```
+
+### Create Athena table using Snappy compressed PARQUET files
+* To create tables in Athena we will need a bucket with permissions to the user creating the table
+* **Bucket Name** `ti-p-athena`
+* **Folder Name** `customer-billing/parquet/`
+* **File Format** `.parquet.snappy`
+* **Create Table**
+```sql
+create external table tinitiate_athena.athena_parquet_snappy (
+   order_id     int
+  ,store_id     int
+  ,order_date   string
+  ,customer_id  int
+  ,name         string
+  ,email        string
+  ,product_id   int
+  ,quantity     int
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+LOCATION 's3://ti-p-data/customer-billing/snappy-parquet';
 ```
