@@ -2,12 +2,13 @@
 * Introduction
 * IAM Roles for Athena
 * DataTypes
-* Simple Table
-* Nested Table
+* Athena Tables
+* Create Tables CSV SerDe Data Formats, Compression
+* Create Tables JSON SerDe Data Formats, Compression
+* Create Tables Parquet SerDe Data Formats, Compression
 * Date Functions
 * String Functions
 * Math Functions
-* SerDe Data Formats, Compression
 * Insert/Update/Delete in Athena
 * Caching
 * Performance Tuning

@@ -31,49 +31,105 @@ def compress_snappy_data(p_input_bytes):
 # ########################
 # JSON Output
 # ########################
-def write_dict_to_json_and_upload_to_s3(p_dict_data, p_s3_bucket,p_s3_folder, p_filename, p_aws_profile):
+def write_dict_to_json_and_upload_to_s3(p_dict_data, p_s3_bucket, p_s3_folder, p_filename, p_aws_profile, p_compression=None):
     # Convert dictionary to JSON string
     json_data = json.dumps(p_dict_data)
     # Create a BytesIO object
     output_stream = BytesIO()
-    output_stream.write(json_data.encode())
+
+    # Apply compression if specified
+    if p_compression == 'gz':
+        with gzip.GzipFile(fileobj=output_stream, mode='w') as gz_file:
+            gz_file.write(json_data.encode())
+    elif p_compression == 'bz2':
+        with bz2.BZ2File(fileobj=output_stream, mode='w') as bz2_file:
+            bz2_file.write(json_data.encode())
+    else:
+        output_stream.write(json_data.encode())
+
     output_stream.seek(0)
     # Initialize S3 client
     session = boto3.Session(profile_name=p_aws_profile)
     s3_client = session.client('s3')
-    s3_key = f"{p_s3_folder}/{p_filename}"
+
+    # Adjust file name based on compression
+    if p_compression == 'gz':
+        s3_key = f"{p_s3_folder}/{p_filename}.gz"
+    elif p_compression == 'bz2':
+        s3_key = f"{p_s3_folder}/{p_filename}.bz2"
+    else:
+        s3_key = f"{p_s3_folder}/{p_filename}"
+
     # Upload to S3
     s3_client.upload_fileobj(output_stream, p_s3_bucket, s3_key)
 
 
-def write_list_to_json_and_upload_to_s3(p_list_data, p_s3_bucket,p_s3_folder, p_filename, p_aws_profile):
+def write_list_to_json_and_upload_to_s3(p_list_data, p_s3_bucket, p_s3_folder, p_filename, p_aws_profile, p_compression=None):
     # Convert list to JSON string
     json_data = json.dumps(p_list_data)
     # Create a BytesIO object
     output_stream = BytesIO()
-    output_stream.write(json_data.encode())
+
+    # Apply compression if specified
+    if p_compression == 'gz':
+        with gzip.GzipFile(fileobj=output_stream, mode='w') as gz_file:
+            gz_file.write(json_data.encode())
+    elif p_compression == 'bz2':
+        with bz2.BZ2File(fileobj=output_stream, mode='w') as bz2_file:
+            bz2_file.write(json_data.encode())
+    else:
+        output_stream.write(json_data.encode())
+
     output_stream.seek(0)
     # Initialize S3 client
     session = boto3.Session(profile_name=p_aws_profile)
     s3_client = session.client('s3')
-    s3_key = f"{p_s3_folder}/{p_filename}"
+
+    # Adjust file name based on compression
+    if p_compression == 'gz':
+        s3_key = f"{p_s3_folder}/{p_filename}.gz"
+    elif p_compression == 'bz2':
+        s3_key = f"{p_s3_folder}/{p_filename}.bz2"
+    else:
+        s3_key = f"{p_s3_folder}/{p_filename}"
+
     # Upload to S3
     s3_client.upload_fileobj(output_stream, p_s3_bucket, s3_key)
 
 
-def write_list_to_ndjson_and_upload_to_s3(p_list_data, p_s3_bucket, p_s3_folder, p_filename, p_aws_profile):
+def write_list_to_ndjson_and_upload_to_s3(p_list_data, p_s3_bucket, p_s3_folder, p_filename, p_aws_profile, p_compression=None):
     # Create a BytesIO object
     output_stream = BytesIO()
-    # Convert each item in the list to a JSON string and write to the BytesIO object
-    for item in p_list_data:
-        json_data = json.dumps(item) + "\n"
-        output_stream.write(json_data.encode())
-    # Move back to the start of the BytesIO object
+
+    # Apply compression if specified
+    if p_compression == 'gz':
+        with gzip.GzipFile(fileobj=output_stream, mode='w') as gz_file:
+            for item in p_list_data:
+                json_data = json.dumps(item) + "\n"
+                gz_file.write(json_data.encode())
+    elif p_compression == 'bz2':
+        with bz2.BZ2File(fileobj=output_stream, mode='w') as bz2_file:
+            for item in p_list_data:
+                json_data = json.dumps(item) + "\n"
+                bz2_file.write(json_data.encode())
+    else:
+        for item in p_list_data:
+            json_data = json.dumps(item) + "\n"
+            output_stream.write(json_data.encode())
+
     output_stream.seek(0)
     # Initialize S3 client
     session = boto3.Session(profile_name=p_aws_profile)
     s3_client = session.client('s3')
-    s3_key = f"{p_s3_folder}/{p_filename}"
+
+    # Adjust file name based on compression
+    if p_compression == 'gz':
+        s3_key = f"{p_s3_folder}/{p_filename}.gz"
+    elif p_compression == 'bz2':
+        s3_key = f"{p_s3_folder}/{p_filename}.bz2"
+    else:
+        s3_key = f"{p_s3_folder}/{p_filename}"
+
     # Upload to S3
     s3_client.upload_fileobj(output_stream, p_s3_bucket, s3_key)
 
